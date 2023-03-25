@@ -21,7 +21,7 @@ function searchArtist(artist){
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            const results = data.results.artistmatches.artist;
+            let results = data.results.artistmatches.artist;
             console.log(`Search results for ${artist}:`);
             results.forEach(result => handleSearchArtist(result));
         })
@@ -37,8 +37,26 @@ function searchUser(user){
             console.log(`Search resuts for ${user}: `);
             console.log(data);
             handleSearchUser(data);
+            searchUserTopArtist(user);
+        })
+        .catch(error => console.error(error.message))   
+}
+
+function searchUserTopArtist(user){
+    let numResults = 1;
+    let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            let results = data.topartists.artist;
+            console.log(`Search resuts for ${user}: `);
+            console.log(data);
+            results.forEach(result => handleSearchUserTopArtist(result));
+            // handleSearchUserTopArtist(data);
         })
         .catch(error => console.error(error.message))
+
 }
 
 function handleSearchArtist(artistData){
@@ -55,3 +73,12 @@ function handleSearchUser(userData){
     document.getElementById('user-output').innerHTML="User: " + userName;
     document.getElementById('scrobbles-output').innerHTML="Scrobbles: " + scrobbles;
 }
+
+function handleSearchUserTopArtist(artistData){
+    //need to use fetch again because it's a different function
+    console.log("Top artist data: " + artistData);
+    let topArtist = artistData.name;
+    console.log("Top artist: " + topArtist);
+    document.getElementById('top-artist-output').innerHTML="Top artist: " + topArtist;
+}
+
