@@ -1,8 +1,12 @@
-const API_KEY = 'c77958698a259fde566df32564b47b55'
+const API_KEY = 'c77958698a259fde566df32564b47b55';
 const searchInput = document.querySelector('#search-input');
 const searchButton = document.querySelector('#search-button');
 const searchUserInput = document.querySelector('#search-user-input');
 const searchUserButton = document.querySelector('#search-user-button');
+const outputElement = document.getElementById('output');
+const userOutputElement = document.getElementById('user-output');
+const scrobblesOutputElement = document.getElementById('scrobbles-output');
+const topArtistOutputElement = document.getElementById('top-artist-output');
 
 searchButton.addEventListener('click', () => {
     const artist = searchInput.value;
@@ -14,14 +18,20 @@ searchUserButton.addEventListener('click', () => {
     searchUser(user);
 })
 
-function searchArtist(artist){
-    let numResults = 1;
-    let url = `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artist}&api_key=${API_KEY}&limit=${numResults}&format=json`;
+async function fetchJSON(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
 
-    fetch(url)
-        .then(response => response.json())
+function searchArtist(artist){
+    const numResults = 1;
+    const url = `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artist}&api_key=${API_KEY}&limit=${numResults}&format=json`;
+    fetchJSON(url)
         .then(data => {
-            let results = data.results.artistmatches.artist;
+            const results = data.results.artistmatches.artist;
             console.log(`Search results for ${artist}:`);
             results.forEach(result => handleSearchArtist(result));
         })
@@ -29,12 +39,10 @@ function searchArtist(artist){
 }
 
 function searchUser(user){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${user}&api_key=${API_KEY}&format=json`;
-
-    fetch(url)
-        .then(response => response.json())
+    const url = `http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${user}&api_key=${API_KEY}&format=json`;
+    fetchJSON(url)
         .then(data => {
-            console.log(`Search resuts for ${user}: `);
+            console.log(`Search results for ${user}: `);
             console.log(data);
             handleSearchUser(data);
             searchUserTopArtist(user);
@@ -43,42 +51,35 @@ function searchUser(user){
 }
 
 function searchUserTopArtist(user){
-    let numResults = 1;
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-
-    fetch(url)
-        .then(response => response.json())
+    const numResults = 1;
+    const url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
+    fetchJSON(url)
         .then(data => {
-            let results = data.topartists.artist;
-            console.log(`Search resuts for ${user}: `);
+            console.log(`Search results for ${user}: `);
             console.log(data);
+            let results = data.topartists.artist;
             results.forEach(result => handleSearchUserTopArtist(result));
-            // handleSearchUserTopArtist(data);
         })
         .catch(error => console.error(error.message))
-
 }
 
 function handleSearchArtist(artistData){
     console.log(artistData);
-    let artistName = artistData.name;
-    document.getElementById('output').innerHTML="Artist Results: " + artistName;
-
+    const artistName = artistData.name;
+    outputElement.innerHTML = `Artist Results: ${artistName}`;
 }
 
 function handleSearchUser(userData){
     console.log(userData);
-    let userName = userData.user.name;
-    let scrobbles = userData.user.playcount;
-    document.getElementById('user-output').innerHTML="User: " + userName;
-    document.getElementById('scrobbles-output').innerHTML="Scrobbles: " + scrobbles;
+    const userName = userData.user.name;
+    const scrobbles = userData.user.playcount;
+    userOutputElement.innerHTML = `User: ${userName}`;
+    scrobblesOutputElement.innerHTML = `Scrobbles: ${scrobbles}`;
 }
 
-function handleSearchUserTopArtist(artistData){
-    //need to use fetch again because it's a different function
-    console.log("Top artist data: " + artistData);
-    let topArtist = artistData.name;
-    console.log("Top artist: " + topArtist);
-    document.getElementById('top-artist-output').innerHTML="Top artist: " + topArtist;
+function handleSearchUserTopArtist(artist){
+    console.log(`Top artist data: ${artist}`);
+    const topArtist = artist.name;
+    console.log(`Top artist: ${topArtist}`);
+    topArtistOutputElement.innerHTML = `Top artist: ${topArtist}`;
 }
-
