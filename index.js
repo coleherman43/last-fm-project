@@ -27,81 +27,65 @@ async function fetchJSON(url) {
     return response.json();
 }
 
+//this function takes one url at a time. It won't work with multiple artists, so another function needs to be created
+//or it needs to be modified to do that. But if it's used for multiple artists it'll be very slow since it fetches each time
+async function search(url, callback){
+    fetchJSON(url)
+        .then(data => { 
+            callback(data);
+        })
+        .catch(error => console.error(error.message));
+}
+
 function searchArtist(artist){
     const numResults = 1;
     const url = `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artist}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    fetchJSON(url)
-        .then(data => {
-            const results = data.results.artistmatches.artist;
-            console.log(`Search results for ${artist}:`);
-            results.forEach(result => handleSearchArtist(result));
-        })
-        .catch(error => console.error(error.message))
+    search(url, handleSearchArtist);
 }
 
 function searchUser(user){
     const url = `http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${user}&api_key=${API_KEY}&format=json`;
-    fetchJSON(url)
-        .then(data => {
-            console.log(`Search results for ${user}: `);
-            console.log(data);
-            handleSearchUser(data);
-            searchUserTopArtist(user);
-            searchUserTopAlbum(user);
-        })
-        .catch(error => console.error(error.message))   
+    searchUserTopAlbum(user);
+    searchUserTopArtist(user);
+    search(url, handleSearchUser)
 }
 
 function searchUserTopArtist(user){
     const numResults = 1;
     const url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    fetchJSON(url)
-        .then(data => {
-            console.log(`Search results for ${user}: `);
-            console.log(data);
-            let results = data.topartists.artist;
-            results.forEach(result => handleSearchUserTopArtist(result));
-        })
-        .catch(error => console.error(error.message))
+    search(url, handleSearchUserTopArtist);
 }
 
 function searchUserTopAlbum(user){
     const numResults = 1;
     const url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    fetchJSON(url)
-        .then(data => {
-            console.log(`Search results for album from ${user}`);
-            console.log(data);
-            let results = data.topalbums.album;
-            results.forEach(result => handleSearchUserTopAlbum(result));
-        })
-        .catch(error => console.error(error.message));
+    search(url, handleSearchUserTopAlbum);
 }
 
-function handleSearchArtist(artistData){
-    console.log(artistData);
-    const artistName = artistData.name;
+function handleSearchArtist(data){
+    let artistName = data.results.artistmatches.artist[0].name;
     outputElement.innerHTML = `Artist Results: ${artistName}`;
 }
 
 function handleSearchUser(userData){
-    console.log(userData);
-    const userName = userData.user.name;
-    const scrobbles = userData.user.playcount;
+    console.log(`User data: ${userData}`);
+    let userName = userData.user.name;
+    let scrobbles = userData.user.playcount;
     userOutputElement.innerHTML = `User: ${userName}`;
     scrobblesOutputElement.innerHTML = `Scrobbles: ${scrobbles}`;
 }
 
-function handleSearchUserTopArtist(artist){
-    console.log(`Top artist data: ${artist}`);
-    const topArtist = artist.name;
+function handleSearchUserTopArtist(data){
+    console.log(`Top artist data: ${data}`);
+    console.log(data);
+    const topArtist = data.topartists.artist[0].name;
     console.log(`Top artist: ${topArtist}`);
     topArtistOutputElement.innerHTML = `Top artist: ${topArtist}`;
 }
 
-function handleSearchUserTopAlbum(album){
-    console.log(`Top album data: ${album}`);
-    const topAlbum = album.name;
+function handleSearchUserTopAlbum(data){
+    console.log(`Top album data: ${data}`);
+    const topAlbum = data.topalbums.album[0].name;
     console.log(`Top album: ${topAlbum}`);
     topAlbumOutputElement.innerHTML = `Top album: ${topAlbum}`;
 }
