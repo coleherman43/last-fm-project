@@ -9,6 +9,7 @@ const scrobblesOutputElement = document.getElementById('scrobbles-output');
 const topArtistOutputElement = document.getElementById('top-artist-output');
 const topAlbumOutputElement = document.getElementById('top-album-output');
 const topTrackOutputElement = document.getElementById('top-track-output');
+const numResults = 50;
 
 searchButton.addEventListener('click', () => {
     const artist = searchInput.value;
@@ -28,8 +29,6 @@ async function fetchJSON(url) {
     return response.json();
 }
 
-//this function takes one url at a time. It won't work with multiple artists, so another function needs to be created
-//or it needs to be modified to do that. But if it's used for multiple artists it'll be very slow since it fetches each time
 async function search(url, callback){
     fetchJSON(url)
         .then(data => { 
@@ -39,7 +38,6 @@ async function search(url, callback){
 }
 
 function searchArtist(artist){
-    let numResults = 1;
     let url = `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artist}&api_key=${API_KEY}&limit=${numResults}&format=json`;
     search(url, handleSearchArtist);
 }
@@ -53,26 +51,26 @@ function searchUser(user){
 }
 
 function searchUserTopArtist(user){
-    let numResults = 1;
     let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
     search(url, handleSearchUserTopArtist);
 }
 
 function searchUserTopAlbum(user){
-    let numResults = 1;
     let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
     search(url, handleSearchUserTopAlbum);
 }
 
 function searchUserTopTrack(user){
-    let numResults = 1;
     let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
     search(url, handleSearchUserTopTrack);
 }
 
 function handleSearchArtist(data){
-    let artistName = data.results.artistmatches.artist[0].name;
-    outputElement.innerHTML = `Artist Results: ${artistName}`;
+    let artists = [];
+    data.results.artistmatches.artist.forEach((artist) => {
+        artists.push(artist.name);
+    })
+    outputElement.innerHTML = `Artist Results: ${artists}`;
 }
 
 function handleSearchUser(userData){
@@ -83,18 +81,25 @@ function handleSearchUser(userData){
 }
 
 function handleSearchUserTopArtist(data){
-    let topArtist = data.topartists.artist[0].name;
-    console.log(`Top artist: ${topArtist}`);
-    topArtistOutputElement.innerHTML = `Top artist: ${topArtist}`;
+    let topArtists = [];
+    data.topartists.artist.forEach((artist) => {
+        topArtists.push(artist.name)
+    });
+    topArtistOutputElement.innerHTML = `Top artist: ${topArtists}`;
 }
 
 function handleSearchUserTopAlbum(data){
-    let topAlbum = data.topalbums.album[0].name;
-    topAlbumOutputElement.innerHTML = `Top album: ${topAlbum}`;
+    let topAlbums = [];
+    data.topalbums.album.forEach((album) => {
+        topAlbums.push(album.name)
+    });
+    topAlbumOutputElement.innerHTML = `Top album: ${topAlbums}`;
 }
 
 function handleSearchUserTopTrack(data){
-    console.log(data);
-    let topTrack = data.toptracks.track[0].name;
-    topTrackOutputElement.innerHTML = `Top track: ${topTrack}`;
+    let topTracks = [];
+    data.toptracks.track.forEach((track) => {
+        topTracks.push(track.name)
+    });
+    topTrackOutputElement.innerHTML=`Top tracks: ${topTracks}`
 }
