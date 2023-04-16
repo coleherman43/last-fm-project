@@ -9,7 +9,7 @@ const scrobblesOutputElement = document.getElementById('scrobbles-output');
 const topArtistOutputElement = document.getElementById('top-artist-output');
 const topAlbumOutputElement = document.getElementById('top-album-output');
 const topTrackOutputElement = document.getElementById('top-track-output');
-const numResults = 50;
+const numResults = 10;
 
 searchButton.addEventListener('click', () => {
     const artist = searchInput.value;

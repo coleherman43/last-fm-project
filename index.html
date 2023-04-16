@@ -4,6 +4,8 @@
 <head>
     <title>Test Last.fm Data Retriever</title>
     <User-Agent hidden="true">Last-FM-Pet-Project</User-Agent>
+    <!-- Fix this link below to get the css to show up -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -18,9 +20,12 @@
     <div id="output"></div>
     <div id="user-output"></div>
     <div id="scrobbles-output"></div>
-    <div id="top-artist-output"></div>
-    <div id="top-album-output"></div>
-    <div id="top-track-output"></div>
+
+    <div class="results">
+        <div class="column" id="top-artist-output"></div>
+        <div class="column" id="top-album-output"></div>
+        <div class="column" id="top-track-output"></div>
+    </div>
 
     <script src="index.js"></script>
 </body>
