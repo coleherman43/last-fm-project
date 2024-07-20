@@ -87,17 +87,17 @@ class DisplayData {
 
     displayTopArtists(data) {
         const artists = data.topartists.artist.map(artist => artist.name);
-        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ul>${artists.map(artist => `<li>${artist}</li>`).join('')}</ul>`;
+        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ol>${artists.map(artist => `<li>${artist}</li>`).join('')}</ol>`;
     }
 
     displayTopAlbums(data) {
         const albums = data.topalbums.album.map(album => album.name);
-        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ul>${albums.map(album => `<li>${album}</li>`).join('')}</ul>`;
+        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ol>${albums.map(album => `<li>${album}</li>`).join('')}</ol>`;
     }
 
     displayTopTracks(data) {
         const tracks = data.toptracks.track.map(track => track.name);
-        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ul>${tracks.map(track => `<li>${track}</li>`).join('')}</ul>`;
+        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ol>${tracks.map(track => `<li>${track}</li>`).join('')}</ol>`;
     }
 
     // Add more methods as needed
