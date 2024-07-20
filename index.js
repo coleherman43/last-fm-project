@@ -1,105 +1,126 @@
 const API_KEY = 'c77958698a259fde566df32564b47b55';
-const searchInput = document.querySelector('#search-input');
-const searchButton = document.querySelector('#search-button');
-const searchUserInput = document.querySelector('#search-user-input');
-const searchUserButton = document.querySelector('#search-user-button');
-const outputElement = document.getElementById('output');
-const userOutputElement = document.getElementById('user-output');
-const scrobblesOutputElement = document.getElementById('scrobbles-output');
-const topArtistOutputElement = document.getElementById('top-artist-output');
-const topAlbumOutputElement = document.getElementById('top-album-output');
-const topTrackOutputElement = document.getElementById('top-track-output');
+const usernameDiv = document.getElementById('username');
+const scrobblesDiv = document.getElementById('scrobbles');
+const artistsDiv = document.getElementById('artists');
+const albumsDiv = document.getElementById('albums');
+const tracksDiv = document.getElementById('tracks');
 const numResults = 10;
 
-searchButton.addEventListener('click', () => {
-    const artist = searchInput.value;
-    searchArtist(artist);
-});
-
-searchUserButton.addEventListener('click', () => {
-    const user = searchUserInput.value;
-    searchUser(user);
-})
-
-async function fetchJSON(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+class Search {
+    constructor(user) {
+        this.user = user;
+        this.baseUrl = 'http://ws.audioscrobbler.com/2.0/';
     }
-    return response.json();
+
+    async fetchStats(method, additionalParams = {}) {
+        const url = new URL(this.baseUrl);
+        url.searchParams.append('method', method);
+        url.searchParams.append('user', this.user);
+        url.searchParams.append('api_key', API_KEY);
+        url.searchParams.append('format', 'json');
+
+        for (const [key, value] of Object.entries(additionalParams)) {
+            url.searchParams.append(key, value);
+        }
+
+        console.debug('url:', url);
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    async getTopArtists() {
+        return this.fetchStats('user.gettopartists');
+    }
+
+    async getTopAlbums() {
+        return this.fetchStats('user.gettopalbums');
+    }
+
+    async getTopTracks() {
+        return this.fetchStats('user.gettoptracks');
+    }
+
+    // Add more methods as needed
 }
 
-async function search(url, callback){
-    fetchJSON(url)
-        .then(data => { 
-            callback(data);
-        })
-        .catch(error => console.error(error.message));
+function promptUsername() {
+    const username = prompt("Please enter your Last.fm username:");
+    if (username) {
+        loadUserStats(username);
+    } else {
+        console.error("Username is required.");
+    }
 }
 
-function searchArtist(artist){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artist}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    search(url, handleSearchArtist);
+async function loadUserStats(username) {
+    const search = new Search(username, API_KEY);
+    const displayData = new DisplayData(usernameDiv, scrobblesDiv, artistsDiv, albumsDiv, tracksDiv);
+
+    try {
+        const topArtists = await search.getTopArtists();
+        displayData.displayTopArtists(topArtists);
+
+        const topAlbums = await search.getTopAlbums();
+        displayData.displayTopAlbums(topAlbums);
+
+        const topTracks = await search.getTopTracks();
+        displayData.displayTopTracks(topTracks);
+
+        // Add more stats as needed
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+    }
 }
 
-function searchUser(user){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${user}&api_key=${API_KEY}&format=json`;
-    searchUserTopAlbum(user);
-    searchUserTopArtist(user);
-    searchUserTopTrack(user);
-    search(url, handleSearchUser)
+class DisplayData {
+    constructor(usernameDiv, scrobblesDiv, artistsDiv, albumsDiv, tracksDiv) {
+        this.usernameDiv = usernameDiv;
+        this.scrobblesDiv = scrobblesDiv;
+        this.artistsDiv = artistsDiv;
+        this.albumsDiv = albumsDiv;
+        this.tracksDiv = tracksDiv;
+    }
+
+    displayTopArtists(data) {
+        const artists = data.topartists.artist.map(artist => artist.name);
+        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ul>${artists.map(artist => `<li>${artist}</li>`).join('')}</ul>`;
+    }
+
+    displayTopAlbums(data) {
+        const albums = data.topalbums.album.map(album => album.name);
+        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ul>${albums.map(album => `<li>${album}</li>`).join('')}</ul>`;
+    }
+
+    displayTopTracks(data) {
+        const tracks = data.toptracks.track.map(track => track.name);
+        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ul>${tracks.map(track => `<li>${track}</li>`).join('')}</ul>`;
+    }
+
+    // Add more methods as needed
 }
 
-function searchUserTopArtist(user){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    search(url, handleSearchUserTopArtist);
+function displayTopArtists(data) {
+    const artists = data.topartists.artist.map(artist => artist.name);
+    console.log('Top Artists:', artists);
+    // Update the DOM or display the data as needed
 }
 
-function searchUserTopAlbum(user){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    search(url, handleSearchUserTopAlbum);
+function displayTopAlbums(data) {
+    const albums = data.topalbums.album.map(album => album.name);
+    console.log('Top Albums:', albums);
+    // Update the DOM or display the data as needed
 }
 
-function searchUserTopTrack(user){
-    let url = `http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${user}&api_key=${API_KEY}&limit=${numResults}&format=json`;
-    search(url, handleSearchUserTopTrack);
+function displayTopTracks(data) {
+    const tracks = data.toptracks.track.map(track => track.name);
+    console.log('Top Tracks:', tracks);
+    // Update the DOM or display the data as needed
 }
 
-function handleSearchArtist(data){
-    let artists = [];
-    data.results.artistmatches.artist.forEach((artist) => {
-        artists.push(artist.name);
-    })
-    outputElement.innerHTML = `Artist Results: ${artists}`;
-}
-
-function handleSearchUser(userData){
-    let userName = userData.user.name;
-    let scrobbles = userData.user.playcount;
-    userOutputElement.innerHTML = `User: ${userName}`;
-    scrobblesOutputElement.innerHTML = `Scrobbles: ${scrobbles}`;
-}
-
-function handleSearchUserTopArtist(data){
-    let topArtists = [];
-    data.topartists.artist.forEach((artist) => {
-        topArtists.push(artist.name)
-    });
-    topArtistOutputElement.innerHTML = `Top artist: ${topArtists}`;
-}
-
-function handleSearchUserTopAlbum(data){
-    let topAlbums = [];
-    data.topalbums.album.forEach((album) => {
-        topAlbums.push(album.name)
-    });
-    topAlbumOutputElement.innerHTML = `Top album: ${topAlbums}`;
-}
-
-function handleSearchUserTopTrack(data){
-    let topTracks = [];
-    data.toptracks.track.forEach((track) => {
-        topTracks.push(track.name)
-    });
-    topTrackOutputElement.innerHTML=`Top tracks: ${topTracks}`
-}
+document.addEventListener('DOMContentLoaded', () => {
+    promptUsername();
+});
