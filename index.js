@@ -86,18 +86,27 @@ class DisplayData {
     }
 
     displayTopArtists(data) {
-        const artists = data.topartists.artist.map(artist => artist.name);
-        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ol>${artists.map(artist => `<li>${artist}</li>`).join('')}</ol>`;
+        const artists = data.topartists.artist.map(artist => ({
+            name: artist.name,
+            playcount: artist.playcount
+        }));
+        this.artistsDiv.innerHTML = `<h3 class="title">Top Artists</h3><ol class="list">${artists.map(artist => `<li class="list-item">${artist.name} (${artist.playcount} plays)</li>`).join('')}</ol>`;
     }
 
     displayTopAlbums(data) {
-        const albums = data.topalbums.album.map(album => album.name);
-        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ol>${albums.map(album => `<li>${album}</li>`).join('')}</ol>`;
+        const albums = data.topalbums.album.map(album => ({
+            name: album.name,
+            playcount: album.playcount
+        }));
+        this.albumsDiv.innerHTML = `<h3 class="title">Top Albums</h3><ol class="list">${albums.map(album => `<li class="list-item">${album.name} (${album.playcount} plays)</li>`).join('')}</ol>`;
     }
 
     displayTopTracks(data) {
-        const tracks = data.toptracks.track.map(track => track.name);
-        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ol>${tracks.map(track => `<li>${track}</li>`).join('')}</ol>`;
+        const tracks = data.toptracks.track.map(track => ({
+            name: track.name,
+            playcount: track.playcount
+        }));
+        this.tracksDiv.innerHTML = `<h3 class="title">Top Tracks</h3><ol class="list">${tracks.map(track => `<li class="list-item">${track.name} (${track.playcount} plays)</li>`).join('')}</ol>`;
     }
 
     // Add more methods as needed
