@@ -16,18 +16,29 @@
 }
 
 .list {
-    list-style-type: decimal;
-    padding-left: 20px;
-    font-family: Arial, sans-serif;
-    color: #555;
-    list-style-position: inside; /* Ensure numbers are inside the list item block */
+    list-style: none; /* Remove default bullet points */
+    padding-left: 0;
+    counter-reset: item; /* Initialize the counter */
 }
 
 .list-item {
     margin: 5px 0;
     padding: 5px;
     border-bottom: 1px solid #ddd;
-    display: list-item; /* Ensure the entire list item is a block element with numbering */
+    display: block;
+    position: relative;
+    padding-left: 30px; /* Add space for the number */
+}
+
+.list-item::before {
+    content: counter(item) ". "; /* Add the counter value before the list item */
+    counter-increment: item; /* Increment the counter */
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-right: 10px;
+    font-weight: bold;
+    color: #333;
 }
 
 .list-item:hover {

@@ -4,11 +4,12 @@ const scrobblesDiv = document.getElementById('scrobbles');
 const artistsDiv = document.getElementById('artists');
 const albumsDiv = document.getElementById('albums');
 const tracksDiv = document.getElementById('tracks');
-const numResults = 10;
+const NUM_RESULTS = 10;
 
 class Search {
-    constructor(user) {
+    constructor(user, apiKey) {
         this.user = user;
+        this.apiKey = apiKey;
         this.baseUrl = 'http://ws.audioscrobbler.com/2.0/';
     }
 
@@ -16,14 +17,12 @@ class Search {
         const url = new URL(this.baseUrl);
         url.searchParams.append('method', method);
         url.searchParams.append('user', this.user);
-        url.searchParams.append('api_key', API_KEY);
+        url.searchParams.append('api_key', this.apiKey);
         url.searchParams.append('format', 'json');
 
         for (const [key, value] of Object.entries(additionalParams)) {
             url.searchParams.append(key, value);
         }
-
-        console.debug('url:', url);
 
         const response = await fetch(url);
         if (!response.ok) {
@@ -33,18 +32,16 @@ class Search {
     }
 
     async getTopArtists() {
-        return this.fetchStats('user.gettopartists');
+        return this.fetchStats('user.getTopArtists');
     }
 
     async getTopAlbums() {
-        return this.fetchStats('user.gettopalbums');
+        return this.fetchStats('user.getTopAlbums');
     }
 
     async getTopTracks() {
-        return this.fetchStats('user.gettoptracks');
+        return this.fetchStats('user.getTopTracks');
     }
-
-    // Add more methods as needed
 }
 
 function promptUsername() {
@@ -53,6 +50,34 @@ function promptUsername() {
         loadUserStats(username);
     } else {
         console.error("Username is required.");
+    }
+}
+
+class DisplayData {
+    constructor(usernameDiv, scrobblesDiv, artistsDiv, albumsDiv, tracksDiv) {
+        this.usernameDiv = usernameDiv;
+        this.scrobblesDiv = scrobblesDiv;
+        this.artistsDiv = artistsDiv;
+        this.albumsDiv = albumsDiv;
+        this.tracksDiv = tracksDiv;
+    }
+
+    displayTopArtists(data) {
+        console.log('Top Artists Data:', data); // Log the data to inspect its structure
+        const artists = data.topartists.artist.map(artist => artist.name);
+        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ul>${artists.map(artist => `<li>${artist}</li>`).join('')}</ul>`;
+    }
+
+    displayTopAlbums(data) {
+        console.log('Top Albums Data:', data); // Log the data to inspect its structure
+        const albums = data.topalbums.album.map(album => album.name);
+        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ul>${albums.map(album => `<li>${album}</li>`).join('')}</ul>`;
+    }
+
+    displayTopTracks(data) {
+        console.log('Top Tracks Data:', data); // Log the data to inspect its structure
+        const tracks = data.toptracks.track.map(track => track.name);
+        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ul>${tracks.map(track => `<li>${track}</li>`).join('')}</ul>`;
     }
 }
 
@@ -74,63 +99,6 @@ async function loadUserStats(username) {
     } catch (error) {
         console.error('Error fetching user stats:', error);
     }
-}
-
-class DisplayData {
-    constructor(usernameDiv, scrobblesDiv, artistsDiv, albumsDiv, tracksDiv) {
-        this.usernameDiv = usernameDiv;
-        this.scrobblesDiv = scrobblesDiv;
-        this.artistsDiv = artistsDiv;
-        this.albumsDiv = albumsDiv;
-        this.tracksDiv = tracksDiv;
-    }
-
-    displayTopItems(data, targetDiv, title, itemType) {
-        const itemsArray = data[itemType] && data[itemType][itemType.slice(3)];
-        if (!itemsArray) {
-            console.error(`Error: ${itemType} data is not available.`);
-            return;
-        }
-
-        const items = itemsArray.map(item => ({
-            name: item.name,
-            playcount: item.playcount
-        }));
-
-        targetDiv.innerHTML = `<h3 class="title">Top ${title}</h3><ol class="list">${items.map(item => `<li class="list-item">${item.name} (${item.playcount} plays)</li>`).join('')}</ol>`;
-    }
-
-    displayTopArtists(data) {
-        this.displayTopItems(data, this.artistsDiv, 'Artists', 'topartists');
-    }
-
-    displayTopAlbums(data) {
-        this.displayTopItems(data, this.albumsDiv, 'Albums', 'topalbums');
-    }
-
-    displayTopTracks(data) {
-        this.displayTopItems(data, this.tracksDiv, 'Tracks', 'toptracks');
-    }
-
-    // Add more methods as needed
-}
-
-function displayTopArtists(data) {
-    const artists = data.topartists.artist.map(artist => artist.name);
-    console.log('Top Artists:', artists);
-    // Update the DOM or display the data as needed
-}
-
-function displayTopAlbums(data) {
-    const albums = data.topalbums.album.map(album => album.name);
-    console.log('Top Albums:', albums);
-    // Update the DOM or display the data as needed
-}
-
-function displayTopTracks(data) {
-    const tracks = data.toptracks.track.map(track => track.name);
-    console.log('Top Tracks:', tracks);
-    // Update the DOM or display the data as needed
 }
 
 document.addEventListener('DOMContentLoaded', () => {
