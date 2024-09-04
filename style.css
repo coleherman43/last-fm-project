@@ -1,11 +1,17 @@
 .results {
     border: 3px solid black;
-    background-color: white;
+    background-color: rgb(64, 63, 63);
     display: flex;
+    padding: 20px;
+    gap: 20px;
 }
+
 .column {
     border: 1px solid black;
-    background-color: rgb(194, 190, 190);
+    background-color: rgb(245, 245, 245);
+    padding: 10px;
+    border-radius: 5px;
+    flex: 1;
 }
 
 .title {
@@ -13,4 +19,52 @@
     color: #333;
     text-align: center;
     margin-bottom: 10px;
+}
+
+h1 {
+    text-align: center;
+    align-self: center;
+    align-content: center;
+    font-family: 'Verdana', sans-serif;
+    color: rgb(255, 255, 255);
+    margin-bottom: 20px;
+}
+
+body {
+    background-color: #333; /* Dark grey background */
+    color: rgb(70, 70, 70); /* White text for better contrast */
+    font-family: 'Verdana', sans-serif; /* Casual font */
+}
+
+ol {
+    list-style: none; /* Remove default numbering */
+    counter-reset: item; /* Initialize the counter */
+    padding-left: 0;
+}
+
+ol li {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #555; /* Lighter grey boxes */
+    border: 1px solid #777; /* Slightly darker border */
+    border-radius: 5px;
+    position: relative;
+    padding-left: 40px; /* Add space for the number */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: white; /* White text for better contrast */
+}
+
+ol li::before {
+    content: counter(item) ". "; /* Add the counter value before the list item */
+    counter-increment: item; /* Increment the counter */
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: white; /* White color for the number */
+}
+
+ol li:hover {
+    background-color: #666; /* Slightly darker grey on hover */
 }
