@@ -85,19 +85,31 @@ class DisplayData {
         this.tracksDiv = tracksDiv;
     }
 
+    displayTopItems(data, targetDiv, title, itemType) {
+        const itemsArray = data[itemType] && data[itemType][itemType.slice(3)];
+        if (!itemsArray) {
+            console.error(`Error: ${itemType} data is not available.`);
+            return;
+        }
+
+        const items = itemsArray.map(item => ({
+            name: item.name,
+            playcount: item.playcount
+        }));
+
+        targetDiv.innerHTML = `<h3 class="title">Top ${title}</h3><ol class="list">${items.map(item => `<li class="list-item">${item.name} (${item.playcount} plays)</li>`).join('')}</ol>`;
+    }
+
     displayTopArtists(data) {
-        const artists = data.topartists.artist.map(artist => artist.name);
-        this.artistsDiv.innerHTML = `<h3>Top Artists</h3><ul>${artists.map(artist => `<li>${artist}</li>`).join('')}</ul>`;
+        this.displayTopItems(data, this.artistsDiv, 'Artists', 'topartists');
     }
 
     displayTopAlbums(data) {
-        const albums = data.topalbums.album.map(album => album.name);
-        this.albumsDiv.innerHTML = `<h3>Top Albums</h3><ul>${albums.map(album => `<li>${album}</li>`).join('')}</ul>`;
+        this.displayTopItems(data, this.albumsDiv, 'Albums', 'topalbums');
     }
 
     displayTopTracks(data) {
-        const tracks = data.toptracks.track.map(track => track.name);
-        this.tracksDiv.innerHTML = `<h3>Top Tracks</h3><ul>${tracks.map(track => `<li>${track}</li>`).join('')}</ul>`;
+        this.displayTopItems(data, this.tracksDiv, 'Tracks', 'toptracks');
     }
 
     // Add more methods as needed
