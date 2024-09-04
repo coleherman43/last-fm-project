@@ -85,28 +85,31 @@ class DisplayData {
         this.tracksDiv = tracksDiv;
     }
 
-    displayTopArtists(data) {
-        const artists = data.topartists.artist.map(artist => ({
-            name: artist.name,
-            playcount: artist.playcount
+    displayTopItems(data, targetDiv, title, itemType) {
+        const itemsArray = data[itemType] && data[itemType][itemType.slice(3)];
+        if (!itemsArray) {
+            console.error(`Error: ${itemType} data is not available.`);
+            return;
+        }
+
+        const items = itemsArray.map(item => ({
+            name: item.name,
+            playcount: item.playcount
         }));
-        this.artistsDiv.innerHTML = `<h3 class="title">Top Artists</h3><ol class="list">${artists.map(artist => `<li class="list-item">${artist.name} (${artist.playcount} plays)</li>`).join('')}</ol>`;
+
+        targetDiv.innerHTML = `<h3 class="title">Top ${title}</h3><ol class="list">${items.map(item => `<li class="list-item">${item.name} (${item.playcount} plays)</li>`).join('')}</ol>`;
+    }
+
+    displayTopArtists(data) {
+        this.displayTopItems(data, this.artistsDiv, 'Artists', 'topartists');
     }
 
     displayTopAlbums(data) {
-        const albums = data.topalbums.album.map(album => ({
-            name: album.name,
-            playcount: album.playcount
-        }));
-        this.albumsDiv.innerHTML = `<h3 class="title">Top Albums</h3><ol class="list">${albums.map(album => `<li class="list-item">${album.name} (${album.playcount} plays)</li>`).join('')}</ol>`;
+        this.displayTopItems(data, this.albumsDiv, 'Albums', 'topalbums');
     }
 
     displayTopTracks(data) {
-        const tracks = data.toptracks.track.map(track => ({
-            name: track.name,
-            playcount: track.playcount
-        }));
-        this.tracksDiv.innerHTML = `<h3 class="title">Top Tracks</h3><ol class="list">${tracks.map(track => `<li class="list-item">${track.name} (${track.playcount} plays)</li>`).join('')}</ol>`;
+        this.displayTopItems(data, this.tracksDiv, 'Tracks', 'toptracks');
     }
 
     // Add more methods as needed
