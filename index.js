@@ -1,4 +1,5 @@
-const API_KEY = 'c77958698a259fde566df32564b47b55';
+const API_KEY = import.meta.env.VITE_API_KEY;
+console.log('API Key:', API_KEY); // Debug to ensure it loads correctly
 const usernameDiv = document.getElementById('username');
 const scrobblesDiv = document.getElementById('scrobbles');
 const artistsDiv = document.getElementById('artists');
